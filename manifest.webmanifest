@@ -1,0 +1,25 @@
+{
+  "name": "米兔排課表",
+  "short_name": "米兔排課表",
+  "description": "適合安親班老師使用的作業與排課提醒工具。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f5ef",
+  "theme_color": "#246b61",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

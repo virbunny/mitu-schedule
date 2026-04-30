@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>米兔排課表</title>
+  <meta name="theme-color" content="#246b61">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="米兔排課表">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <section class="header">
+      <div>
+        <p class="eyebrow">After School Helper</p>
+        <div class="title-row">
+          <img class="title-icon" src="favicon.png" alt="">
+          <h1>米兔排課表</h1>
+        </div>
+      </div>
+      <div class="header-actions">
+        <p class="today" id="todayText"></p>
+        <div class="tool-actions">
+          <button type="button" class="tool-button" id="exportButton">匯出資料</button>
+          <label class="tool-button import-button" for="importFile">匯入資料</label>
+          <input id="importFile" class="file-input" type="file" accept="application/json,.json">
+          <button type="button" class="print-button" id="printWeekButton">列印本月課表</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="calendar-panel">
+      <div class="calendar-toolbar">
+        <button type="button" class="month-button" id="prevMonthButton" aria-label="上一個月">‹</button>
+        <div>
+          <p class="month-title" id="monthTitle"></p>
+        </div>
+        <button type="button" class="month-button" id="nextMonthButton" aria-label="下一個月">›</button>
+      </div>
+
+      <div class="weekdays" aria-hidden="true">
+        <span>一</span>
+        <span>二</span>
+        <span>三</span>
+        <span>四</span>
+        <span>五</span>
+      </div>
+
+      <div class="calendar-grid" id="calendarGrid"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="formTitle">
+      <div class="section-title-row">
+        <h2 id="formTitle">新增作業</h2>
+        <span class="selected-date" id="selectedDateText"></span>
+      </div>
+
+      <form id="homeworkForm" class="homework-form">
+        <label for="homeworkInput">作業內容</label>
+        <textarea id="homeworkInput" rows="3" placeholder="例如：國語第 8 課圈詞、數學習作第 32 頁" required></textarea>
+
+        <label for="dateInput">日期</label>
+        <input id="dateInput" type="date" required>
+
+        <button type="submit" class="primary-button">新增到選取日期</button>
+      </form>
+    </section>
+
+    <section class="list-section" aria-labelledby="listTitle">
+      <div class="list-header">
+        <div>
+          <p class="eyebrow">Homework List</p>
+          <h2 id="listTitle">當日作業</h2>
+        </div>
+        <span class="count" id="homeworkCount">0 筆</span>
+      </div>
+
+      <div id="emptyState" class="empty-state">
+        這一天目前沒有作業。點選日期後，可以直接新增到那一天。
+      </div>
+
+      <ul id="homeworkList" class="homework-list"></ul>
+    </section>
+
+    <section class="print-schedule" aria-label="列印本月課表">
+      <div class="print-page">
+        <header class="print-header">
+          <div class="print-brand">
+            <img class="print-logo" src="favicon.png" alt="">
+            <div>
+              <p class="print-eyebrow">After School Helper</p>
+              <h2 id="printTitle">米兔排課表</h2>
+            </div>
+          </div>
+          <div class="print-meta">
+            <p id="printWeekRange"></p>
+            <span>週一～週五作業表</span>
+          </div>
+        </header>
+
+        <div class="print-week" id="printWeek"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

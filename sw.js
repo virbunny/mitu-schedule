@@ -6,8 +6,8 @@ const APP_FILES = [
   "./script.js",
   "./manifest.webmanifest",
   "./favicon.png",
-  "./pwa-icon-192.png",
-  "./pwa-icon-512.png"
+  "./pwa-icon-192.svg",
+  "./pwa-icon-512.svg"
 ];
 
 self.addEventListener("install", (event) => {

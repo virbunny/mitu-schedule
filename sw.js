@@ -1,4 +1,4 @@
-const CACHE_NAME = "mitu-schedule-v3";
+const CACHE_NAME = "mitu-schedule-v4";
 const APP_FILES = [
   "./",
   "./index.html",
@@ -34,18 +34,17 @@ self.addEventListener("fetch", (event) => {
   }
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-
-      return fetch(event.request).then((networkResponse) => {
+    fetch(event.request).then((networkResponse) => {
+      if (networkResponse && networkResponse.ok) {
         const responseCopy = networkResponse.clone();
         caches.open(CACHE_NAME).then((cache) => {
           cache.put(event.request, responseCopy);
         });
-        return networkResponse;
-      });
+      }
+
+      return networkResponse;
+    }).catch(() => {
+      return caches.match(event.request);
     })
   );
 });

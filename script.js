@@ -159,7 +159,9 @@ function registerServiceWorker() {
   }
 
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("sw.js").catch(() => {
+    navigator.serviceWorker.register("sw.js").then((registration) => {
+      registration.update();
+    }).catch(() => {
       // 直接用檔案開啟時無法啟用 PWA，網站功能仍可正常使用。
     });
   });

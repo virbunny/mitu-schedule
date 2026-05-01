@@ -1,11 +1,13 @@
-const CACHE_NAME = "mitu-schedule-v1";
+const CACHE_NAME = "mitu-schedule-v2";
 const APP_FILES = [
   "./",
   "./index.html",
   "./style.css",
   "./script.js",
   "./manifest.webmanifest",
-  "./favicon.png"
+  "./favicon.png",
+  "./pwa-icon-192.png",
+  "./pwa-icon-512.png"
 ];
 
 self.addEventListener("install", (event) => {

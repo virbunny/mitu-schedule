@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="36" fill="#f7f5ef"/>
+  <circle cx="96" cy="96" r="72" fill="#d7eee7" stroke="#246b61" stroke-width="8"/>
+  <text x="96" y="106" text-anchor="middle" font-family="Microsoft JhengHei, Noto Sans TC, sans-serif" font-size="42" font-weight="700" fill="#174b43">米兔</text>
+</svg>

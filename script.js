@@ -1,4 +1,5 @@
 const STORAGE_KEY = "afterSchoolHomeworkList";
+const MONTH_VIEW_STORAGE_KEY = "mituMonthViewCount";
 
 const form = document.getElementById("homeworkForm");
 const homeworkInput = document.getElementById("homeworkInput");
@@ -10,6 +11,8 @@ const todayText = document.getElementById("todayText");
 const selectedDateText = document.getElementById("selectedDateText");
 const calendarGrid = document.getElementById("calendarGrid");
 const monthTitle = document.getElementById("monthTitle");
+const monthViewOneButton = document.getElementById("monthViewOneButton");
+const monthViewTwoButton = document.getElementById("monthViewTwoButton");
 const prevMonthButton = document.getElementById("prevMonthButton");
 const nextMonthButton = document.getElementById("nextMonthButton");
 const printWeekButton = document.getElementById("printWeekButton");
@@ -22,6 +25,7 @@ const printWeek = document.getElementById("printWeek");
 let homeworks = loadHomeworks();
 let selectedDate = getTodayValue();
 let visibleMonth = new Date(`${selectedDate}T00:00:00`);
+let monthViewCount = loadMonthViewCount();
 const workdayNames = ["一", "二", "三", "四", "五"];
 
 function getTodayValue() {
@@ -48,6 +52,14 @@ function formatPrintDate(dateValue) {
 
 function formatMonth(date) {
   return `${date.getFullYear()} 年 ${date.getMonth() + 1} 月`;
+}
+
+function loadMonthViewCount() {
+  return localStorage.getItem(MONTH_VIEW_STORAGE_KEY) === "2" ? 2 : 1;
+}
+
+function saveMonthViewCount() {
+  localStorage.setItem(MONTH_VIEW_STORAGE_KEY, String(monthViewCount));
 }
 
 function loadHomeworks() {
@@ -244,10 +256,29 @@ function getPrintMonthDates(date) {
   return dates;
 }
 
+function getMonthStart(dateValue) {
+  const date = new Date(`${dateValue}T00:00:00`);
+  return new Date(date.getFullYear(), date.getMonth(), 1);
+}
+
+function isDateInVisibleMonths(dateValue) {
+  const selectedMonthStart = getMonthStart(dateValue);
+  const visibleStart = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), 1);
+  const visibleEnd = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + monthViewCount, 1);
+
+  return selectedMonthStart >= visibleStart && selectedMonthStart < visibleEnd;
+}
+
+function setVisibleMonthToDate(dateValue) {
+  visibleMonth = getMonthStart(dateValue);
+}
+
 function setSelectedDate(dateValue, shouldFocusInput = false) {
   selectedDate = dateValue;
   dateInput.value = selectedDate;
-  visibleMonth = new Date(`${selectedDate}T00:00:00`);
+  if (!isDateInVisibleMonths(selectedDate)) {
+    setVisibleMonthToDate(selectedDate);
+  }
   renderAll();
 
   if (shouldFocusInput) {
@@ -255,18 +286,39 @@ function setSelectedDate(dateValue, shouldFocusInput = false) {
   }
 }
 
-function renderCalendar() {
-  const year = visibleMonth.getFullYear();
-  const month = visibleMonth.getMonth();
+function updateMonthViewButtons() {
+  monthViewOneButton.classList.toggle("is-active", monthViewCount === 1);
+  monthViewTwoButton.classList.toggle("is-active", monthViewCount === 2);
+  monthViewOneButton.setAttribute("aria-pressed", String(monthViewCount === 1));
+  monthViewTwoButton.setAttribute("aria-pressed", String(monthViewCount === 2));
+}
+
+function renderCalendarMonth(monthDate) {
+  const year = monthDate.getFullYear();
+  const month = monthDate.getMonth();
   const todayValue = getTodayValue();
   const firstDay = new Date(year, month, 1);
   const startDate = new Date(firstDay);
   const firstDayOfWeek = firstDay.getDay();
   const mondayOffset = firstDayOfWeek === 0 ? -6 : 1 - firstDayOfWeek;
+  const monthBox = document.createElement("section");
+  const monthName = document.createElement("h3");
+  const weekdays = document.createElement("div");
+  const daysGrid = document.createElement("div");
 
   startDate.setDate(firstDay.getDate() + mondayOffset);
-  calendarGrid.innerHTML = "";
-  monthTitle.textContent = formatMonth(visibleMonth);
+  monthBox.className = "calendar-month";
+  monthName.className = "calendar-month-name";
+  monthName.textContent = formatMonth(monthDate);
+  weekdays.className = "weekdays";
+  weekdays.setAttribute("aria-hidden", "true");
+  daysGrid.className = "calendar-days";
+
+  workdayNames.forEach((name) => {
+    const weekday = document.createElement("span");
+    weekday.textContent = name;
+    weekdays.appendChild(weekday);
+  });
 
   for (let index = 0; index < 30; index += 1) {
     const date = new Date(startDate);
@@ -320,7 +372,28 @@ function renderCalendar() {
     }
 
     button.addEventListener("click", () => setSelectedDate(dateValue, true));
-    calendarGrid.appendChild(button);
+    daysGrid.appendChild(button);
+  }
+
+  monthBox.append(monthName, weekdays, daysGrid);
+  return monthBox;
+}
+
+function renderCalendar() {
+  calendarGrid.innerHTML = "";
+  calendarGrid.className = monthViewCount === 2 ? "calendar-grid two-months" : "calendar-grid";
+  updateMonthViewButtons();
+
+  if (monthViewCount === 1) {
+    monthTitle.textContent = formatMonth(visibleMonth);
+  } else {
+    const nextMonth = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + 1, 1);
+    monthTitle.textContent = `${formatMonth(visibleMonth)} ～ ${formatMonth(nextMonth)}`;
+  }
+
+  for (let index = 0; index < monthViewCount; index += 1) {
+    const monthDate = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + index, 1);
+    calendarGrid.appendChild(renderCalendarMonth(monthDate));
   }
 }
 
@@ -447,8 +520,16 @@ function addHomework(text, date) {
 
   saveHomeworks();
   selectedDate = date;
-  visibleMonth = new Date(`${date}T00:00:00`);
+  if (!isDateInVisibleMonths(date)) {
+    setVisibleMonthToDate(date);
+  }
   renderAll();
+}
+
+function setMonthViewCount(nextCount) {
+  monthViewCount = nextCount;
+  saveMonthViewCount();
+  renderCalendar();
 }
 
 function toggleHomework(id) {
@@ -504,6 +585,10 @@ nextMonthButton.addEventListener("click", () => {
   visibleMonth = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + 1, 1);
   renderCalendar();
 });
+
+monthViewOneButton.addEventListener("click", () => setMonthViewCount(1));
+
+monthViewTwoButton.addEventListener("click", () => setMonthViewCount(2));
 
 printWeekButton.addEventListener("click", () => {
   renderPrintSchedule();

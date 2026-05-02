@@ -148,6 +148,46 @@ h2 {
   margin-bottom: 18px;
 }
 
+.month-heading {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  min-width: 0;
+  text-align: center;
+}
+
+.month-view-toggle {
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  border: 2px solid #d7eee7;
+  border-radius: 8px;
+  background: #edf8f5;
+}
+
+.view-toggle-button {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 6px;
+  color: var(--brand-dark);
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 900;
+}
+
+.view-toggle-button.is-active {
+  color: #fff;
+  background: var(--brand);
+}
+
+.view-toggle-button:hover,
+.view-toggle-button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(36, 107, 97, 0.14);
+}
+
 .month-button {
   width: 54px;
   height: 54px;
@@ -167,10 +207,39 @@ h2 {
 }
 
 .weekdays,
-.calendar-grid {
+.calendar-days {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 8px;
+}
+
+.calendar-panel > .weekdays {
+  display: none;
+}
+
+.calendar-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.calendar-grid.two-months {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.calendar-month {
+  min-width: 0;
+}
+
+.calendar-month-name {
+  margin: 0 0 10px;
+  color: var(--brand-dark);
+  font-size: 1.1rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.calendar-grid:not(.two-months) .calendar-month-name {
+  display: none;
 }
 
 .weekdays {
@@ -545,8 +614,30 @@ input[type="date"]:focus {
   }
 
   .weekdays,
-  .calendar-grid {
+  .calendar-days {
     gap: 5px;
+  }
+
+  .calendar-toolbar {
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .month-heading {
+    flex: 1;
+  }
+
+  .month-title {
+    font-size: 1rem;
+  }
+
+  .calendar-grid.two-months {
+    grid-template-columns: 1fr;
+  }
+
+  .view-toggle-button {
+    min-height: 42px;
+    padding: 0 10px;
   }
 
   .calendar-day {

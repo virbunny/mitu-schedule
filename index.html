@@ -36,8 +36,12 @@
     <section class="calendar-panel">
       <div class="calendar-toolbar">
         <button type="button" class="month-button" id="prevMonthButton" aria-label="上一個月">‹</button>
-        <div>
+        <div class="month-heading">
           <p class="month-title" id="monthTitle"></p>
+          <div class="month-view-toggle" aria-label="月曆顯示範圍">
+            <button type="button" class="view-toggle-button" id="monthViewOneButton">1 個月</button>
+            <button type="button" class="view-toggle-button" id="monthViewTwoButton">2 個月</button>
+          </div>
         </div>
         <button type="button" class="month-button" id="nextMonthButton" aria-label="下一個月">›</button>
       </div>

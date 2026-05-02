@@ -453,7 +453,7 @@ function renderPrintSchedule() {
   const printYear = visibleMonth.getFullYear();
   const printMonth = visibleMonth.getMonth() + 1;
 
-  printTitle.textContent = "米兔排課表 v1.0.0";
+  printTitle.textContent = "米兔排課表 v1.0.1";
   printWeekRange.textContent = `${printYear} 年 ${printMonth} 月`;
   printWeek.innerHTML = "";
 

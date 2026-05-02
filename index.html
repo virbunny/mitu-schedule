@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>米兔排課表 v1.0.1</title>
+  <title>&#31859;&#20820;&#25490;&#35506;&#34920; v1.0.1</title>
   <meta name="theme-color" content="#246b61">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="米兔排課表">
+  <meta name="apple-mobile-web-app-title" content="&#31859;&#20820;&#25490;&#35506;&#34920;">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" href="favicon.png">
   <link rel="manifest" href="manifest.webmanifest">
@@ -19,39 +19,39 @@
         <p class="eyebrow">After School Helper</p>
         <div class="title-row">
           <img class="title-icon" src="favicon.png" alt="">
-          <h1>米兔排課表 <span class="version-badge">v1.0.1</span></h1>
+          <h1>&#31859;&#20820;&#25490;&#35506;&#34920;<span class="version-badge">v1.0.1</span></h1>
         </div>
       </div>
       <div class="header-actions">
         <p class="today" id="todayText"></p>
         <div class="tool-actions">
-          <button type="button" class="tool-button" id="exportButton">匯出資料</button>
-          <label class="tool-button import-button" for="importFile">匯入資料</label>
+          <button type="button" class="tool-button" id="exportButton">&#21295;&#20986;&#20633;&#20221;</button>
+          <label class="tool-button import-button" for="importFile">&#21295;&#20837;&#20633;&#20221;</label>
           <input id="importFile" class="file-input" type="file" accept="application/json,.json">
-          <button type="button" class="print-button" id="printWeekButton">列印本月課表</button>
+          <button type="button" class="print-button" id="printWeekButton">&#21015;&#21360;&#26376;&#34920;</button>
         </div>
       </div>
     </section>
 
     <section class="calendar-panel">
       <div class="calendar-toolbar">
-        <button type="button" class="month-button" id="prevMonthButton" aria-label="上一個月">‹</button>
+        <button type="button" class="month-button" id="prevMonthButton" aria-label="&#19978;&#19968;&#20491;&#26376;">&lt;</button>
         <div class="month-heading">
           <p class="month-title" id="monthTitle"></p>
-          <div class="month-view-toggle" aria-label="月曆顯示範圍">
-            <button type="button" class="view-toggle-button" id="monthViewOneButton">1 個月</button>
-            <button type="button" class="view-toggle-button" id="monthViewTwoButton">2 個月</button>
+          <div class="month-view-toggle" aria-label="&#20999;&#25563;&#26376;&#20221;&#39023;&#31034;">
+            <button type="button" class="view-toggle-button" id="monthViewOneButton">1 &#20491;&#26376;</button>
+            <button type="button" class="view-toggle-button" id="monthViewTwoButton">2 &#20491;&#26376;</button>
           </div>
         </div>
-        <button type="button" class="month-button" id="nextMonthButton" aria-label="下一個月">›</button>
+        <button type="button" class="month-button" id="nextMonthButton" aria-label="&#19979;&#19968;&#20491;&#26376;">&gt;</button>
       </div>
 
       <div class="weekdays" aria-hidden="true">
-        <span>一</span>
-        <span>二</span>
-        <span>三</span>
-        <span>四</span>
-        <span>五</span>
+        <span>&#19968;</span>
+        <span>&#20108;</span>
+        <span>&#19977;</span>
+        <span>&#22235;</span>
+        <span>&#20116;</span>
       </div>
 
       <div class="calendar-grid" id="calendarGrid"></div>
@@ -59,18 +59,18 @@
 
     <section class="panel" aria-labelledby="formTitle">
       <div class="section-title-row">
-        <h2 id="formTitle">新增作業</h2>
+        <h2 id="formTitle">&#26032;&#22686;&#20316;&#26989;</h2>
         <span class="selected-date" id="selectedDateText"></span>
       </div>
 
       <form id="homeworkForm" class="homework-form">
-        <label for="homeworkInput">作業內容</label>
-        <textarea id="homeworkInput" rows="3" placeholder="例如：國語第 8 課圈詞、數學習作第 32 頁" required></textarea>
+        <label for="homeworkInput">&#20316;&#26989;&#20839;&#23481;</label>
+        <textarea id="homeworkInput" rows="3" placeholder="&#20363;&#22914;&#65306;&#25976;&#23416;&#31532; 8 &#22238;&#12289;&#22283;&#35486;&#32722;&#20316; 32 &#38913;" required></textarea>
 
-        <label for="dateInput">日期</label>
+        <label for="dateInput">&#26085;&#26399;</label>
         <input id="dateInput" type="date" required>
 
-        <button type="submit" class="primary-button">新增到選取日期</button>
+        <button type="submit" class="primary-button">&#26032;&#22686;&#21040;&#25490;&#35506;&#34920;</button>
       </form>
     </section>
 
@@ -78,31 +78,31 @@
       <div class="list-header">
         <div>
           <p class="eyebrow">Homework List</p>
-          <h2 id="listTitle">當日作業</h2>
+          <h2 id="listTitle">&#30070;&#22825;&#20316;&#26989;</h2>
         </div>
-        <span class="count" id="homeworkCount">0 筆</span>
+        <span class="count" id="homeworkCount">0 &#38917;</span>
       </div>
 
       <div id="emptyState" class="empty-state">
-        這一天目前沒有作業。點選日期後，可以直接新增到那一天。
+        &#30446;&#21069;&#36889;&#22825;&#36996;&#27794;&#26377;&#20316;&#26989;&#65292;&#40670;&#26376;&#26310;&#36984;&#26085;&#26399;&#24460;&#23601;&#21487;&#20197;&#26032;&#22686;&#12290;
       </div>
 
       <ul id="homeworkList" class="homework-list"></ul>
     </section>
 
-    <section class="print-schedule" aria-label="列印本月課表">
+    <section class="print-schedule" aria-label="&#21015;&#21360;&#26376;&#34920;">
       <div class="print-page">
         <header class="print-header">
           <div class="print-brand">
             <img class="print-logo" src="favicon.png" alt="">
             <div>
               <p class="print-eyebrow">After School Helper</p>
-              <h2 id="printTitle">米兔排課表 v1.0.1</h2>
+              <h2 id="printTitle">&#31859;&#20820;&#25490;&#35506;&#34920; v1.0.1</h2>
             </div>
           </div>
           <div class="print-meta">
             <p id="printWeekRange"></p>
-            <span>週一～週五作業表</span>
+            <span>&#26376;&#26310;&#20316;&#26989;&#34920;</span>
           </div>
         </header>
 

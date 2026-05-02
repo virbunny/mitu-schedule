@@ -1,7 +1,7 @@
 {
-  "name": "米兔排課表",
-  "short_name": "米兔排課表",
-  "description": "適合安親班老師使用的作業與排課提醒工具。",
+  "name": "\u7c73\u5154\u6392\u8ab2\u8868",
+  "short_name": "\u7c73\u5154\u6392\u8ab2\u8868",
+  "description": "\u7d66\u5b89\u89aa\u73ed\u8001\u5e2b\u4f7f\u7528\u7684\u4f5c\u696d\u8207\u6392\u8ab2\u8a18\u9304\u5de5\u5177\u3002",
   "id": "./",
   "start_url": "./",
   "scope": "./",

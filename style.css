@@ -891,7 +891,7 @@ input[type="date"]:focus {
   }
 
   .print-task-list li::before {
-    content: "□";
+    content: "\25a1";
     position: absolute;
     top: -0.25mm;
     left: 0;
@@ -907,7 +907,7 @@ input[type="date"]:focus {
   }
 
   .print-task-list li.is-done::before {
-    content: "✓";
+    content: "\2713";
   }
 
   .print-note-lines {
@@ -922,7 +922,7 @@ input[type="date"]:focus {
   }
 
   .print-note-lines::before {
-    content: "備註";
+    content: "\5099\8a3b";
     grid-row: span 2;
   }
 

@@ -285,6 +285,17 @@ h2 {
   background: var(--selected);
 }
 
+.calendar-day.is-exchange-target {
+  border-color: var(--brand);
+  background: #edf8f5;
+}
+
+.calendar-day.is-exchange-target:hover,
+.calendar-day.is-exchange-target:focus-visible {
+  border-color: var(--accent);
+  background: #fff3d6;
+}
+
 .day-number {
   font-size: 1.06rem;
   font-weight: 800;
@@ -483,6 +494,13 @@ input[type="date"]:focus {
 .homework-item.done {
   border-left-color: var(--brand);
   background: var(--done);
+}
+
+.homework-item.is-exchanging {
+  border-color: var(--brand);
+  border-left-color: var(--brand);
+  background: #edf8f5;
+  box-shadow: 0 0 0 4px rgba(36, 107, 97, 0.14);
 }
 
 .homework-content {

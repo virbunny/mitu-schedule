@@ -371,6 +371,8 @@ input[type="date"]:focus {
 .tool-button,
 .print-button,
 .complete-button,
+.edit-button,
+.exchange-button,
 .delete-button {
   min-height: 52px;
   border: 0;
@@ -508,11 +510,14 @@ input[type="date"]:focus {
 }
 
 .actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(96px, 1fr));
   gap: 10px;
 }
 
 .complete-button,
+.edit-button,
+.exchange-button,
 .delete-button {
   min-width: 96px;
   padding: 0 16px;
@@ -523,6 +528,17 @@ input[type="date"]:focus {
   background: #d7eee7;
 }
 
+.edit-button {
+  color: #533a00;
+  background: #fff0c9;
+}
+
+.exchange-button {
+  color: #174b43;
+  background: #edf8f5;
+  border: 2px solid #bfe1d7;
+}
+
 .delete-button {
   color: #fff;
   background: var(--danger);
@@ -531,6 +547,16 @@ input[type="date"]:focus {
 .complete-button:hover,
 .complete-button:focus-visible {
   background: #bfe1d7;
+}
+
+.edit-button:hover,
+.edit-button:focus-visible {
+  background: #ffe2a0;
+}
+
+.exchange-button:hover,
+.exchange-button:focus-visible {
+  background: #d7eee7;
 }
 
 .delete-button:hover,
@@ -666,6 +692,8 @@ input[type="date"]:focus {
   }
 
   .complete-button,
+  .edit-button,
+  .exchange-button,
   .delete-button {
     min-width: 0;
   }

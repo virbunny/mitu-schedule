@@ -1,5 +1,6 @@
 const STORAGE_KEY = "afterSchoolHomeworkList";
 const MONTH_VIEW_STORAGE_KEY = "mituMonthViewCount";
+const APP_NAME = "\u7c73\u5154\u6392\u8ab2\u8868";
 
 const form = document.getElementById("homeworkForm");
 const homeworkInput = document.getElementById("homeworkInput");
@@ -26,11 +27,10 @@ let homeworks = loadHomeworks();
 let selectedDate = getTodayValue();
 let visibleMonth = new Date(`${selectedDate}T00:00:00`);
 let monthViewCount = loadMonthViewCount();
-const workdayNames = ["一", "二", "三", "四", "五"];
+const workdayNames = ["\u4e00", "\u4e8c", "\u4e09", "\u56db", "\u4e94"];
 
 function getTodayValue() {
-  const today = new Date();
-  return toDateValue(today);
+  return toDateValue(new Date());
 }
 
 function toDateValue(date) {
@@ -51,7 +51,7 @@ function formatPrintDate(dateValue) {
 }
 
 function formatMonth(date) {
-  return `${date.getFullYear()} 年 ${date.getMonth() + 1} 月`;
+  return `${date.getFullYear()} \u5e74 ${date.getMonth() + 1} \u6708`;
 }
 
 function loadMonthViewCount() {
@@ -90,7 +90,7 @@ function getBackupFileName() {
   const minute = String(now.getMinutes()).padStart(2, "0");
   const second = String(now.getSeconds()).padStart(2, "0");
 
-  return `米兔排課表備份-${year}-${month}-${day}-${hour}${minute}${second}.json`;
+  return `${APP_NAME}\u5099\u4efd-${year}-${month}-${day}-${hour}${minute}${second}.json`;
 }
 
 function isValidHomework(homework) {
@@ -107,7 +107,7 @@ function normalizeImportedHomeworks(data) {
   const importedHomeworks = Array.isArray(data) ? data : data.homeworks;
 
   if (!Array.isArray(importedHomeworks)) {
-    throw new Error("匯入檔案格式不正確。");
+    throw new Error("\u532f\u5165\u6a94\u6848\u683c\u5f0f\u4e0d\u6b63\u78ba\u3002");
   }
 
   return importedHomeworks.map((homework) => ({
@@ -120,7 +120,7 @@ function normalizeImportedHomeworks(data) {
 
 function exportHomeworks() {
   const backup = {
-    app: "米兔排課表",
+    app: APP_NAME,
     version: 1,
     exportedAt: new Date().toISOString(),
     homeworks
@@ -142,7 +142,7 @@ function importHomeworks(file) {
       const data = JSON.parse(reader.result);
       const importedHomeworks = normalizeImportedHomeworks(data);
 
-      if (!window.confirm(`確定匯入 ${importedHomeworks.length} 筆資料？目前資料會被覆蓋。`)) {
+      if (!window.confirm(`\u8981\u532f\u5165 ${importedHomeworks.length} \u9805\u4f5c\u696d\u55ce\uff1f\u76ee\u524d\u8cc7\u6599\u6703\u88ab\u53d6\u4ee3\u3002`)) {
         return;
       }
 
@@ -154,9 +154,9 @@ function importHomeworks(file) {
         dateInput.value = selectedDate;
       }
       renderAll();
-      window.alert("匯入完成。");
+      window.alert("\u532f\u5165\u5b8c\u6210\u3002");
     } catch (error) {
-      window.alert("匯入失敗，請確認檔案是米兔排課表匯出的 JSON。");
+      window.alert("\u532f\u5165\u5931\u6557\uff0c\u8acb\u78ba\u8a8d\u6a94\u6848\u662f\u7c73\u5154\u6392\u8ab2\u8868\u532f\u51fa\u7684 JSON \u5099\u4efd\u3002");
     } finally {
       importFile.value = "";
     }
@@ -174,7 +174,7 @@ function registerServiceWorker() {
     navigator.serviceWorker.register("sw.js").then((registration) => {
       registration.update();
     }).catch(() => {
-      // 直接用檔案開啟時無法啟用 PWA，網站功能仍可正常使用。
+      // Opening the file directly may block offline registration.
     });
   });
 }
@@ -199,20 +199,6 @@ function countHomeworksByDate(dateValue) {
 
 function getCalendarPreviewByDate(dateValue) {
   return getHomeworksByDate(dateValue).slice(0, 2);
-}
-
-function getWeekDates(dateValue) {
-  const date = new Date(`${dateValue}T00:00:00`);
-  const firstDate = new Date(date);
-  const day = date.getDay();
-  const mondayOffset = day === 0 ? -6 : 1 - day;
-  firstDate.setDate(date.getDate() + mondayOffset);
-
-  return Array.from({ length: 5 }, (_, index) => {
-    const weekDate = new Date(firstDate);
-    weekDate.setDate(firstDate.getDate() + index);
-    return toDateValue(weekDate);
-  });
 }
 
 function getPrintMonthDates(date) {
@@ -329,7 +315,7 @@ function renderCalendarMonth(monthDate) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "calendar-day";
-    button.setAttribute("aria-label", `選擇 ${formatDate(dateValue)}`);
+    button.setAttribute("aria-label", `\u9078\u64c7 ${formatDate(dateValue)}`);
 
     if (date.getMonth() !== month) {
       button.classList.add("outside-month");
@@ -364,7 +350,7 @@ function renderCalendarMonth(monthDate) {
       if (hiddenTotal > 0) {
         const moreItem = document.createElement("span");
         moreItem.className = "day-more";
-        moreItem.textContent = `還有 ${hiddenTotal} 筆`;
+        moreItem.textContent = `\u9084\u6709 ${hiddenTotal} \u9805`;
         previewList.appendChild(moreItem);
       }
 
@@ -388,7 +374,7 @@ function renderCalendar() {
     monthTitle.textContent = formatMonth(visibleMonth);
   } else {
     const nextMonth = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + 1, 1);
-    monthTitle.textContent = `${formatMonth(visibleMonth)} ～ ${formatMonth(nextMonth)}`;
+    monthTitle.textContent = `${formatMonth(visibleMonth)} \u5230 ${formatMonth(nextMonth)}`;
   }
 
   for (let index = 0; index < monthViewCount; index += 1) {
@@ -402,7 +388,7 @@ function renderHomeworks() {
 
   homeworkList.innerHTML = "";
   emptyState.hidden = selectedHomeworks.length > 0;
-  homeworkCount.textContent = `${selectedHomeworks.length} 筆`;
+  homeworkCount.textContent = `${selectedHomeworks.length} \u9805`;
   selectedDateText.textContent = formatDate(selectedDate);
 
   selectedHomeworks.forEach((homework) => {
@@ -426,17 +412,29 @@ function renderHomeworks() {
     const completeButton = document.createElement("button");
     completeButton.type = "button";
     completeButton.className = "complete-button";
-    completeButton.textContent = homework.done ? "改為未完成" : "完成";
+    completeButton.textContent = homework.done ? "\u6539\u56de\u672a\u5b8c\u6210" : "\u5b8c\u6210";
     completeButton.addEventListener("click", () => toggleHomework(homework.id));
+
+    const editButton = document.createElement("button");
+    editButton.type = "button";
+    editButton.className = "edit-button";
+    editButton.textContent = "\u7de8\u8f2f";
+    editButton.addEventListener("click", () => editHomework(homework.id));
+
+    const exchangeButton = document.createElement("button");
+    exchangeButton.type = "button";
+    exchangeButton.className = "exchange-button";
+    exchangeButton.textContent = "\u4ea4\u63db";
+    exchangeButton.addEventListener("click", () => exchangeHomeworkDate(homework.id));
 
     const deleteButton = document.createElement("button");
     deleteButton.type = "button";
     deleteButton.className = "delete-button";
-    deleteButton.textContent = "刪除";
+    deleteButton.textContent = "\u522a\u9664";
     deleteButton.addEventListener("click", () => deleteHomework(homework.id));
 
     content.append(date, text);
-    actions.append(completeButton, deleteButton);
+    actions.append(completeButton, editButton, exchangeButton, deleteButton);
     item.append(content, actions);
     homeworkList.appendChild(item);
   });
@@ -453,14 +451,14 @@ function renderPrintSchedule() {
   const printYear = visibleMonth.getFullYear();
   const printMonth = visibleMonth.getMonth() + 1;
 
-  printTitle.textContent = "米兔排課表 v1.0.1";
-  printWeekRange.textContent = `${printYear} 年 ${printMonth} 月`;
+  printTitle.textContent = `${APP_NAME} v1.0.1`;
+  printWeekRange.textContent = `${printYear} \u5e74 ${printMonth} \u6708`;
   printWeek.innerHTML = "";
 
   workdayNames.forEach((name) => {
     const header = document.createElement("div");
     header.className = "print-weekday-header";
-    header.textContent = `星期${name}`;
+    header.textContent = `\u661f\u671f${name}`;
     printWeek.appendChild(header);
   });
 
@@ -483,7 +481,7 @@ function renderPrintSchedule() {
 
       const countText = document.createElement("span");
       countText.className = "print-task-count";
-      countText.textContent = dayHomeworks.length > 0 ? `${dayHomeworks.length} 項` : " ";
+      countText.textContent = dayHomeworks.length > 0 ? `${dayHomeworks.length} \u9805` : " ";
 
       title.append(dateText, countText);
     }
@@ -492,7 +490,7 @@ function renderPrintSchedule() {
       dayHomeworks.forEach((homework) => {
         const taskItem = document.createElement("li");
         taskItem.className = homework.done ? "is-done" : "";
-        taskItem.textContent = homework.done ? `${homework.text}（完成）` : homework.text;
+        taskItem.textContent = homework.done ? `${homework.text}\uff08\u5b8c\u6210\uff09` : homework.text;
         taskList.appendChild(taskItem);
       });
     }
@@ -546,6 +544,62 @@ function toggleHomework(id) {
 
   saveHomeworks();
   renderAll();
+}
+
+function editHomework(id) {
+  const homework = homeworks.find((item) => item.id === id);
+
+  if (!homework) {
+    return;
+  }
+
+  const nextText = window.prompt("\u8acb\u4fee\u6539\u4f5c\u696d\u5167\u5bb9", homework.text);
+
+  if (nextText === null) {
+    return;
+  }
+
+  const trimmedText = nextText.trim();
+
+  if (!trimmedText) {
+    window.alert("\u4f5c\u696d\u5167\u5bb9\u4e0d\u80fd\u662f\u7a7a\u767d\u3002");
+    return;
+  }
+
+  homeworks = homeworks.map((item) => (
+    item.id === id ? { ...item, text: trimmedText } : item
+  ));
+
+  saveHomeworks();
+  renderAll();
+}
+
+function exchangeHomeworkDate(id) {
+  const homework = homeworks.find((item) => item.id === id);
+
+  if (!homework) {
+    return;
+  }
+
+  const nextDate = window.prompt("\u8acb\u8f38\u5165\u8981\u4ea4\u63db\u5230\u7684\u65e5\u671f\uff08\u683c\u5f0f\uff1aYYYY-MM-DD\uff09", homework.date);
+
+  if (nextDate === null) {
+    return;
+  }
+
+  const trimmedDate = nextDate.trim();
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmedDate)) {
+    window.alert("\u65e5\u671f\u683c\u5f0f\u4e0d\u6b63\u78ba\uff0c\u8acb\u4f7f\u7528 YYYY-MM-DD\u3002");
+    return;
+  }
+
+  homeworks = homeworks.map((item) => (
+    item.id === id ? { ...item, date: trimmedDate } : item
+  ));
+
+  saveHomeworks();
+  setSelectedDate(trimmedDate);
 }
 
 function deleteHomework(id) {
@@ -606,6 +660,6 @@ importFile.addEventListener("change", () => {
 });
 
 dateInput.value = selectedDate;
-todayText.textContent = `今天：${formatDate(getTodayValue())}`;
+todayText.textContent = `\u4eca\u5929\uff1a${formatDate(getTodayValue())}`;
 renderAll();
 registerServiceWorker();

@@ -464,7 +464,7 @@ function renderPrintSchedule() {
   const printYear = visibleMonth.getFullYear();
   const printMonth = visibleMonth.getMonth() + 1;
 
-  printTitle.textContent = `${APP_NAME} v1.0.1`;
+  printTitle.textContent = `${APP_NAME} v1.0.2`;
   printWeekRange.textContent = `${printYear} \u5e74 ${printMonth} \u6708`;
   printWeek.innerHTML = "";
 

@@ -27,6 +27,7 @@ let homeworks = loadHomeworks();
 let selectedDate = getTodayValue();
 let visibleMonth = new Date(`${selectedDate}T00:00:00`);
 let monthViewCount = loadMonthViewCount();
+let exchangingHomeworkId = "";
 const workdayNames = ["\u4e00", "\u4e8c", "\u4e09", "\u56db", "\u4e94"];
 
 function getTodayValue() {
@@ -260,6 +261,11 @@ function setVisibleMonthToDate(dateValue) {
 }
 
 function setSelectedDate(dateValue, shouldFocusInput = false) {
+  if (exchangingHomeworkId) {
+    exchangeHomeworkToDate(exchangingHomeworkId, dateValue);
+    return;
+  }
+
   selectedDate = dateValue;
   dateInput.value = selectedDate;
   if (!isDateInVisibleMonths(selectedDate)) {
@@ -329,6 +335,10 @@ function renderCalendarMonth(monthDate) {
       button.classList.add("is-selected");
     }
 
+    if (exchangingHomeworkId) {
+      button.classList.add("is-exchange-target");
+    }
+
     const dayNumber = document.createElement("span");
     dayNumber.className = "day-number";
     dayNumber.textContent = date.getDate();
@@ -394,6 +404,9 @@ function renderHomeworks() {
   selectedHomeworks.forEach((homework) => {
     const item = document.createElement("li");
     item.className = homework.done ? "homework-item done" : "homework-item";
+    if (homework.id === exchangingHomeworkId) {
+      item.classList.add("is-exchanging");
+    }
 
     const content = document.createElement("div");
     content.className = "homework-content";
@@ -424,8 +437,8 @@ function renderHomeworks() {
     const exchangeButton = document.createElement("button");
     exchangeButton.type = "button";
     exchangeButton.className = "exchange-button";
-    exchangeButton.textContent = "\u4ea4\u63db";
-    exchangeButton.addEventListener("click", () => exchangeHomeworkDate(homework.id));
+    exchangeButton.textContent = homework.id === exchangingHomeworkId ? "\u53d6\u6d88\u4ea4\u63db" : "\u4ea4\u63db";
+    exchangeButton.addEventListener("click", () => startExchangeHomework(homework.id));
 
     const deleteButton = document.createElement("button");
     deleteButton.type = "button";
@@ -574,32 +587,44 @@ function editHomework(id) {
   renderAll();
 }
 
-function exchangeHomeworkDate(id) {
+function startExchangeHomework(id) {
   const homework = homeworks.find((item) => item.id === id);
 
   if (!homework) {
     return;
   }
 
-  const nextDate = window.prompt("\u8acb\u8f38\u5165\u8981\u4ea4\u63db\u5230\u7684\u65e5\u671f\uff08\u683c\u5f0f\uff1aYYYY-MM-DD\uff09", homework.date);
+  exchangingHomeworkId = exchangingHomeworkId === id ? "" : id;
+  renderAll();
+}
 
-  if (nextDate === null) {
+function exchangeHomeworkToDate(id, nextDate) {
+  const homework = homeworks.find((item) => item.id === id);
+
+  if (!homework) {
+    exchangingHomeworkId = "";
     return;
   }
 
   const trimmedDate = nextDate.trim();
-
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmedDate)) {
-    window.alert("\u65e5\u671f\u683c\u5f0f\u4e0d\u6b63\u78ba\uff0c\u8acb\u4f7f\u7528 YYYY-MM-DD\u3002");
-    return;
-  }
+  const originalDate = homework.date;
 
   homeworks = homeworks.map((item) => (
     item.id === id ? { ...item, date: trimmedDate } : item
   ));
 
+  exchangingHomeworkId = "";
   saveHomeworks();
-  setSelectedDate(trimmedDate);
+  selectedDate = trimmedDate;
+  if (!isDateInVisibleMonths(selectedDate)) {
+    setVisibleMonthToDate(selectedDate);
+  }
+  dateInput.value = selectedDate;
+  renderAll();
+
+  if (originalDate !== trimmedDate) {
+    homeworkInput.focus();
+  }
 }
 
 function deleteHomework(id) {

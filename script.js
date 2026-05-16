@@ -179,6 +179,15 @@ function toExportHomework(homework) {
   };
 }
 
+function getHomeworkLabel(homework) {
+  const schoolShortName = homework.school === "\u79c0\u6717" ? "\u6717" : "\u5c71";
+  return `${schoolShortName}${homework.grade}`;
+}
+
+function formatHomeworkText(homework) {
+  return `${getHomeworkLabel(homework)} ${homework.text}`;
+}
+
 function importHomeworks(file) {
   const reader = new FileReader();
 
@@ -395,7 +404,7 @@ function renderCalendarMonth(monthDate) {
       previewHomeworks.forEach((homework) => {
         const previewItem = document.createElement("span");
         previewItem.className = homework.done ? "day-preview done-preview" : "day-preview";
-        previewItem.textContent = homework.text;
+        previewItem.textContent = formatHomeworkText(homework);
         previewList.appendChild(previewItem);
       });
 
@@ -461,7 +470,7 @@ function renderHomeworks() {
 
     const meta = document.createElement("span");
     meta.className = "homework-meta";
-    meta.textContent = `${homework.school}\u30fb${homework.grade}\u5e74\u7d1a`;
+    meta.textContent = getHomeworkLabel(homework);
 
     const text = document.createElement("p");
     text.className = "homework-text";
@@ -512,7 +521,7 @@ function renderPrintSchedule() {
   const printYear = visibleMonth.getFullYear();
   const printMonth = visibleMonth.getMonth() + 1;
 
-  printTitle.textContent = `${APP_NAME} v1.0.3`;
+  printTitle.textContent = `${APP_NAME} v1.0.4`;
   printWeekRange.textContent = `${printYear} \u5e74 ${printMonth} \u6708`;
   printWeek.innerHTML = "";
 
@@ -551,7 +560,7 @@ function renderPrintSchedule() {
       dayHomeworks.forEach((homework) => {
         const taskItem = document.createElement("li");
         taskItem.className = homework.done ? "is-done" : "";
-        const taskText = `${homework.school}${homework.grade}\u5e74\u7d1a\uff1a${homework.text}`;
+        const taskText = formatHomeworkText(homework);
         taskItem.textContent = homework.done ? `${taskText}\uff08\u5b8c\u6210\uff09` : taskText;
         taskList.appendChild(taskItem);
       });

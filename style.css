@@ -531,12 +531,14 @@ select:focus {
 .homework-meta {
   display: inline-block;
   margin: 0 0 6px 8px;
-  padding: 4px 8px;
-  border-radius: 999px;
+  min-width: 42px;
+  padding: 4px 9px;
+  border-radius: 8px;
   color: #533a00;
   background: #fff0c9;
-  font-size: 0.9rem;
+  font-size: 0.96rem;
   font-weight: 900;
+  text-align: center;
 }
 
 .homework-text {

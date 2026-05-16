@@ -987,28 +987,6 @@ select:focus {
   }
 
   .print-note-lines {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 2.2mm;
-    margin-top: auto;
-    padding-top: 2.2mm;
-    color: #63717a !important;
-    font-size: 7.8pt;
-    font-weight: 900;
-  }
-
-  .print-note-lines::before {
-    content: "\5099\8a3b";
-    grid-row: span 2;
-  }
-
-  .print-note-lines span {
-    display: block;
-    min-height: 1mm;
-    border-bottom: 0.55pt dotted #b7c7c0;
-  }
-
-  .print-day-blank .print-note-lines {
     display: none;
   }
 }

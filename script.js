@@ -26,7 +26,7 @@ const printWeekRange = document.getElementById("printWeekRange");
 const printWeek = document.getElementById("printWeek");
 const DEFAULT_SCHOOL = "\u79c0\u5c71";
 const DEFAULT_GRADE = "5";
-const SCHOOL_OPTIONS = ["\u79c0\u5c71", "\u79c0\u6717"];
+const SCHOOL_OPTIONS = ["\u79c0\u5c71", "\u79c0\u6717", "\u5171\u540c"];
 const GRADE_OPTIONS = ["5", "6"];
 
 let homeworks = loadHomeworks();
@@ -180,7 +180,9 @@ function toExportHomework(homework) {
 }
 
 function getHomeworkLabel(homework) {
-  const schoolShortName = homework.school === "\u79c0\u6717" ? "\u6717" : "\u5c71";
+  const schoolShortName = homework.school === "\u5171\u540c"
+    ? "\u5171"
+    : homework.school === "\u79c0\u6717" ? "\u6717" : "\u5c71";
   return `${schoolShortName}${homework.grade}`;
 }
 
@@ -521,7 +523,7 @@ function renderPrintSchedule() {
   const printYear = visibleMonth.getFullYear();
   const printMonth = visibleMonth.getMonth() + 1;
 
-  printTitle.textContent = `${APP_NAME} v1.0.7`;
+  printTitle.textContent = `${APP_NAME} v1.0.8`;
   printWeekRange.textContent = `${printYear} \u5e74 ${printMonth} \u6708`;
   printWeek.innerHTML = "";
 
@@ -632,7 +634,7 @@ function editHomework(id) {
     return;
   }
 
-  const nextSchool = window.prompt("\u8acb\u4fee\u6539\u6821\u540d\uff08\u79c0\u5c71\u6216\u79c0\u6717\uff09", homework.school);
+  const nextSchool = window.prompt("\u8acb\u4fee\u6539\u6821\u540d\uff08\u79c0\u5c71\u3001\u79c0\u6717\u6216\u5171\u540c\uff09", homework.school);
 
   if (nextSchool === null) {
     return;
@@ -641,7 +643,7 @@ function editHomework(id) {
   const trimmedSchool = nextSchool.trim();
 
   if (!SCHOOL_OPTIONS.includes(trimmedSchool)) {
-    window.alert("\u6821\u540d\u53ea\u80fd\u586b\u79c0\u5c71\u6216\u79c0\u6717\u3002");
+    window.alert("\u6821\u540d\u53ea\u80fd\u586b\u79c0\u5c71\u3001\u79c0\u6717\u6216\u5171\u540c\u3002");
     return;
   }
 

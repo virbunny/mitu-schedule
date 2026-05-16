@@ -25,9 +25,9 @@ const printTitle = document.getElementById("printTitle");
 const printWeekRange = document.getElementById("printWeekRange");
 const printWeek = document.getElementById("printWeek");
 const DEFAULT_SCHOOL = "\u79c0\u5c71";
-const DEFAULT_GRADE = "4";
+const DEFAULT_GRADE = "5";
 const SCHOOL_OPTIONS = ["\u79c0\u5c71", "\u79c0\u6717"];
-const GRADE_OPTIONS = ["4", "5", "6"];
+const GRADE_OPTIONS = ["5", "6"];
 
 let homeworks = loadHomeworks();
 let selectedDate = getTodayValue();
@@ -521,7 +521,7 @@ function renderPrintSchedule() {
   const printYear = visibleMonth.getFullYear();
   const printMonth = visibleMonth.getMonth() + 1;
 
-  printTitle.textContent = `${APP_NAME} v1.0.5`;
+  printTitle.textContent = `${APP_NAME} v1.0.6`;
   printWeekRange.textContent = `${printYear} \u5e74 ${printMonth} \u6708`;
   printWeek.innerHTML = "";
 
@@ -645,7 +645,7 @@ function editHomework(id) {
     return;
   }
 
-  const nextGrade = window.prompt("\u8acb\u4fee\u6539\u5e74\u7d1a\uff084\u30015\u30016\uff09", homework.grade);
+  const nextGrade = window.prompt("\u8acb\u4fee\u6539\u5e74\u7d1a\uff085\u30016\uff09", homework.grade);
 
   if (nextGrade === null) {
     return;
@@ -654,7 +654,7 @@ function editHomework(id) {
   const trimmedGrade = nextGrade.trim();
 
   if (!GRADE_OPTIONS.includes(trimmedGrade)) {
-    window.alert("\u5e74\u7d1a\u53ea\u80fd\u586b 4\u30015\u30016\u3002");
+    window.alert("\u5e74\u7d1a\u53ea\u80fd\u586b 5\u30016\u3002");
     return;
   }
 

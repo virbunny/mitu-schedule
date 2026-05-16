@@ -516,6 +516,13 @@ select:focus {
   box-shadow: 0 0 0 4px rgba(36, 107, 97, 0.14);
 }
 
+.homework-item.is-editing {
+  grid-template-columns: 1fr;
+  border-color: var(--accent);
+  border-left-color: var(--accent);
+  background: #fffdf6;
+}
+
 .homework-content {
   min-width: 0;
 }
@@ -553,6 +560,18 @@ select:focus {
   text-decoration: line-through;
 }
 
+.edit-homework-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.edit-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(96px, 1fr));
+  gap: 10px;
+}
+
 .actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(96px, 1fr));
@@ -562,6 +581,8 @@ select:focus {
 .complete-button,
 .edit-button,
 .exchange-button,
+.save-button,
+.cancel-button,
 .delete-button {
   min-width: 96px;
   padding: 0 16px;
@@ -583,6 +604,16 @@ select:focus {
   border: 2px solid #bfe1d7;
 }
 
+.save-button {
+  color: #fff;
+  background: var(--brand);
+}
+
+.cancel-button {
+  color: var(--brand-dark);
+  background: #d7eee7;
+}
+
 .delete-button {
   color: #fff;
   background: var(--danger);
@@ -601,6 +632,16 @@ select:focus {
 .exchange-button:hover,
 .exchange-button:focus-visible {
   background: #d7eee7;
+}
+
+.save-button:hover,
+.save-button:focus-visible {
+  background: var(--brand-dark);
+}
+
+.cancel-button:hover,
+.cancel-button:focus-visible {
+  background: #bfe1d7;
 }
 
 .delete-button:hover,
@@ -742,6 +783,8 @@ select:focus {
   .complete-button,
   .edit-button,
   .exchange-button,
+  .save-button,
+  .cancel-button,
   .delete-button {
     min-width: 0;
   }

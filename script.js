@@ -34,6 +34,7 @@ let selectedDate = getTodayValue();
 let visibleMonth = new Date(`${selectedDate}T00:00:00`);
 let monthViewCount = loadMonthViewCount();
 let exchangingHomeworkId = "";
+let editingHomeworkId = "";
 const workdayNames = ["\u4e00", "\u4e8c", "\u4e09", "\u56db", "\u4e94"];
 
 function getTodayValue() {
@@ -188,6 +189,14 @@ function getHomeworkLabel(homework) {
 
 function formatHomeworkText(homework) {
   return `${getHomeworkLabel(homework)} ${homework.text}`;
+}
+
+function createOption(value, label, selectedValue) {
+  const option = document.createElement("option");
+  option.value = value;
+  option.textContent = label;
+  option.selected = value === selectedValue;
+  return option;
 }
 
 function importHomeworks(file) {
@@ -462,6 +471,9 @@ function renderHomeworks() {
     if (homework.id === exchangingHomeworkId) {
       item.classList.add("is-exchanging");
     }
+    if (homework.id === editingHomeworkId) {
+      item.classList.add("is-editing");
+    }
 
     const content = document.createElement("div");
     content.className = "homework-content";
@@ -480,6 +492,71 @@ function renderHomeworks() {
 
     const actions = document.createElement("div");
     actions.className = "actions";
+
+    if (homework.id === editingHomeworkId) {
+      const editForm = document.createElement("form");
+      editForm.className = "edit-homework-form";
+
+      const editText = document.createElement("textarea");
+      editText.className = "edit-homework-text";
+      editText.rows = 3;
+      editText.value = homework.text;
+      editText.required = true;
+
+      const editRow = document.createElement("div");
+      editRow.className = "form-row";
+
+      const schoolField = document.createElement("div");
+      schoolField.className = "form-field";
+      const schoolLabel = document.createElement("label");
+      schoolLabel.textContent = "\u6821\u540d";
+      const editSchool = document.createElement("select");
+      editSchool.required = true;
+      SCHOOL_OPTIONS.forEach((school) => {
+        editSchool.appendChild(createOption(school, school, homework.school));
+      });
+      schoolField.append(schoolLabel, editSchool);
+
+      const gradeField = document.createElement("div");
+      gradeField.className = "form-field";
+      const gradeLabel = document.createElement("label");
+      gradeLabel.textContent = "\u5e74\u7d1a";
+      const editGrade = document.createElement("select");
+      editGrade.required = true;
+      GRADE_OPTIONS.forEach((grade) => {
+        editGrade.appendChild(createOption(grade, grade, homework.grade));
+      });
+      gradeField.append(gradeLabel, editGrade);
+
+      editRow.append(schoolField, gradeField);
+
+      const editActions = document.createElement("div");
+      editActions.className = "edit-actions";
+
+      const saveButton = document.createElement("button");
+      saveButton.type = "submit";
+      saveButton.className = "save-button";
+      saveButton.textContent = "\u5132\u5b58";
+
+      const cancelButton = document.createElement("button");
+      cancelButton.type = "button";
+      cancelButton.className = "cancel-button";
+      cancelButton.textContent = "\u53d6\u6d88";
+      cancelButton.addEventListener("click", () => cancelEditHomework());
+
+      editActions.append(saveButton, cancelButton);
+      editForm.append(editText, editRow, editActions);
+      editForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        saveEditedHomework(homework.id, editText.value, editSchool.value, editGrade.value);
+      });
+
+      content.append(date, meta, editForm);
+      item.append(content);
+      homeworkList.appendChild(item);
+      editText.focus();
+      return;
+    }
 
     const completeButton = document.createElement("button");
     completeButton.type = "button";
@@ -523,7 +600,7 @@ function renderPrintSchedule() {
   const printYear = visibleMonth.getFullYear();
   const printMonth = visibleMonth.getMonth() + 1;
 
-  printTitle.textContent = `${APP_NAME} v1.0.8`;
+  printTitle.textContent = `${APP_NAME} v1.0.9`;
   printWeekRange.textContent = `${printYear} \u5e74 ${printMonth} \u6708`;
   printWeek.innerHTML = "";
 
@@ -622,44 +699,17 @@ function toggleHomework(id) {
 }
 
 function editHomework(id) {
-  const homework = homeworks.find((item) => item.id === id);
+  editingHomeworkId = editingHomeworkId === id ? "" : id;
+  exchangingHomeworkId = "";
+  renderAll();
+}
 
-  if (!homework) {
-    return;
-  }
+function cancelEditHomework() {
+  editingHomeworkId = "";
+  renderAll();
+}
 
-  const nextText = window.prompt("\u8acb\u4fee\u6539\u4f5c\u696d\u5167\u5bb9", homework.text);
-
-  if (nextText === null) {
-    return;
-  }
-
-  const nextSchool = window.prompt("\u8acb\u4fee\u6539\u6821\u540d\uff08\u79c0\u5c71\u3001\u79c0\u6717\u6216\u5171\u540c\uff09", homework.school);
-
-  if (nextSchool === null) {
-    return;
-  }
-
-  const trimmedSchool = nextSchool.trim();
-
-  if (!SCHOOL_OPTIONS.includes(trimmedSchool)) {
-    window.alert("\u6821\u540d\u53ea\u80fd\u586b\u79c0\u5c71\u3001\u79c0\u6717\u6216\u5171\u540c\u3002");
-    return;
-  }
-
-  const nextGrade = window.prompt("\u8acb\u4fee\u6539\u5e74\u7d1a\uff085\u30016\uff09", homework.grade);
-
-  if (nextGrade === null) {
-    return;
-  }
-
-  const trimmedGrade = nextGrade.trim();
-
-  if (!GRADE_OPTIONS.includes(trimmedGrade)) {
-    window.alert("\u5e74\u7d1a\u53ea\u80fd\u586b 5\u30016\u3002");
-    return;
-  }
-
+function saveEditedHomework(id, nextText, nextSchool, nextGrade) {
   const trimmedText = nextText.trim();
 
   if (!trimmedText) {
@@ -667,15 +717,21 @@ function editHomework(id) {
     return;
   }
 
+  if (!SCHOOL_OPTIONS.includes(nextSchool) || !GRADE_OPTIONS.includes(nextGrade)) {
+    window.alert("\u6821\u540d\u6216\u5e74\u7d1a\u9078\u9805\u4e0d\u6b63\u78ba\u3002");
+    return;
+  }
+
   homeworks = homeworks.map((item) => (
     item.id === id ? {
       ...item,
       text: trimmedText,
-      school: trimmedSchool,
-      grade: trimmedGrade
+      school: nextSchool,
+      grade: nextGrade
     } : item
   ));
 
+  editingHomeworkId = "";
   saveHomeworks();
   renderAll();
 }

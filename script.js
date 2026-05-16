@@ -4,6 +4,8 @@ const APP_NAME = "\u7c73\u5154\u6392\u8ab2\u8868";
 
 const form = document.getElementById("homeworkForm");
 const homeworkInput = document.getElementById("homeworkInput");
+const schoolInput = document.getElementById("schoolInput");
+const gradeInput = document.getElementById("gradeInput");
 const dateInput = document.getElementById("dateInput");
 const homeworkList = document.getElementById("homeworkList");
 const emptyState = document.getElementById("emptyState");
@@ -22,6 +24,10 @@ const importFile = document.getElementById("importFile");
 const printTitle = document.getElementById("printTitle");
 const printWeekRange = document.getElementById("printWeekRange");
 const printWeek = document.getElementById("printWeek");
+const DEFAULT_SCHOOL = "\u79c0\u5c71";
+const DEFAULT_GRADE = "4";
+const SCHOOL_OPTIONS = ["\u79c0\u5c71", "\u79c0\u6717"];
+const GRADE_OPTIONS = ["4", "5", "6"];
 
 let homeworks = loadHomeworks();
 let selectedDate = getTodayValue();
@@ -101,6 +107,10 @@ function isValidHomework(homework) {
     && homework.text.length > 0
     && typeof homework.date === "string"
     && /^\d{4}-\d{2}-\d{2}$/.test(homework.date)
+    && typeof homework.school === "string"
+    && SCHOOL_OPTIONS.includes(homework.school)
+    && typeof homework.grade === "string"
+    && GRADE_OPTIONS.includes(homework.grade)
     && typeof homework.done === "boolean";
 }
 
@@ -115,6 +125,8 @@ function normalizeImportedHomeworks(data) {
     id: typeof homework.id === "string" ? homework.id : createId(),
     text: String(homework.text || "").trim(),
     date: String(homework.date || ""),
+    school: SCHOOL_OPTIONS.includes(homework.school) ? homework.school : DEFAULT_SCHOOL,
+    grade: GRADE_OPTIONS.includes(String(homework.grade || "")) ? String(homework.grade) : DEFAULT_GRADE,
     done: Boolean(homework.done)
   })).filter(isValidHomework);
 }
@@ -122,9 +134,9 @@ function normalizeImportedHomeworks(data) {
 function exportHomeworks() {
   const backup = {
     app: APP_NAME,
-    version: 1,
+    version: 2,
     exportedAt: new Date().toISOString(),
-    homeworks
+    homeworks: homeworks.map(toExportHomework)
   };
   const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
   const link = document.createElement("a");
@@ -133,6 +145,38 @@ function exportHomeworks() {
   link.download = getBackupFileName();
   link.click();
   URL.revokeObjectURL(link.href);
+}
+
+function normalizeStoredHomeworks() {
+  let hasChanged = false;
+
+  homeworks = homeworks.map((homework) => {
+    const normalizedHomework = {
+      ...homework,
+      school: SCHOOL_OPTIONS.includes(homework.school) ? homework.school : DEFAULT_SCHOOL,
+      grade: GRADE_OPTIONS.includes(String(homework.grade || "")) ? String(homework.grade) : DEFAULT_GRADE
+    };
+
+    if (normalizedHomework.school !== homework.school || normalizedHomework.grade !== homework.grade) {
+      hasChanged = true;
+    }
+
+    return normalizedHomework;
+  });
+
+  if (hasChanged) {
+    saveHomeworks();
+  }
+}
+
+function toExportHomework(homework) {
+  return {
+    id: homework.id,
+    date: homework.date,
+    school: homework.school,
+    grade: homework.grade,
+    text: homework.text
+  };
 }
 
 function importHomeworks(file) {
@@ -415,6 +459,10 @@ function renderHomeworks() {
     date.className = "homework-date";
     date.textContent = formatDate(homework.date);
 
+    const meta = document.createElement("span");
+    meta.className = "homework-meta";
+    meta.textContent = `${homework.school}\u30fb${homework.grade}\u5e74\u7d1a`;
+
     const text = document.createElement("p");
     text.className = "homework-text";
     text.textContent = homework.text;
@@ -446,7 +494,7 @@ function renderHomeworks() {
     deleteButton.textContent = "\u522a\u9664";
     deleteButton.addEventListener("click", () => deleteHomework(homework.id));
 
-    content.append(date, text);
+    content.append(date, meta, text);
     actions.append(completeButton, editButton, exchangeButton, deleteButton);
     item.append(content, actions);
     homeworkList.appendChild(item);
@@ -464,7 +512,7 @@ function renderPrintSchedule() {
   const printYear = visibleMonth.getFullYear();
   const printMonth = visibleMonth.getMonth() + 1;
 
-  printTitle.textContent = `${APP_NAME} v1.0.2`;
+  printTitle.textContent = `${APP_NAME} v1.0.3`;
   printWeekRange.textContent = `${printYear} \u5e74 ${printMonth} \u6708`;
   printWeek.innerHTML = "";
 
@@ -503,7 +551,8 @@ function renderPrintSchedule() {
       dayHomeworks.forEach((homework) => {
         const taskItem = document.createElement("li");
         taskItem.className = homework.done ? "is-done" : "";
-        taskItem.textContent = homework.done ? `${homework.text}\uff08\u5b8c\u6210\uff09` : homework.text;
+        const taskText = `${homework.school}${homework.grade}\u5e74\u7d1a\uff1a${homework.text}`;
+        taskItem.textContent = homework.done ? `${taskText}\uff08\u5b8c\u6210\uff09` : taskText;
         taskList.appendChild(taskItem);
       });
     }
@@ -521,11 +570,13 @@ function renderPrintSchedule() {
   });
 }
 
-function addHomework(text, date) {
+function addHomework(text, date, school, grade) {
   homeworks.push({
     id: createId(),
     text,
     date,
+    school,
+    grade,
     done: false
   });
 
@@ -638,14 +689,18 @@ form.addEventListener("submit", (event) => {
 
   const text = homeworkInput.value.trim();
   const date = dateInput.value;
+  const school = schoolInput.value;
+  const grade = gradeInput.value;
 
-  if (!text || !date) {
+  if (!text || !date || !school || !grade) {
     return;
   }
 
-  addHomework(text, date);
+  addHomework(text, date, school, grade);
   form.reset();
   dateInput.value = selectedDate;
+  schoolInput.value = school;
+  gradeInput.value = grade;
   homeworkInput.focus();
 });
 
@@ -684,7 +739,10 @@ importFile.addEventListener("change", () => {
   }
 });
 
+normalizeStoredHomeworks();
 dateInput.value = selectedDate;
+schoolInput.value = DEFAULT_SCHOOL;
+gradeInput.value = DEFAULT_GRADE;
 todayText.textContent = `\u4eca\u5929\uff1a${formatDate(getTodayValue())}`;
 renderAll();
 registerServiceWorker();

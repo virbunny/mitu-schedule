@@ -1,4 +1,4 @@
-const CACHE_NAME = "mitu-schedule-v10";
+const CACHE_NAME = "mitu-schedule-v11";
 const APP_FILES = [
   "./",
   "./index.html",

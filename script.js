@@ -521,7 +521,7 @@ function renderPrintSchedule() {
   const printYear = visibleMonth.getFullYear();
   const printMonth = visibleMonth.getMonth() + 1;
 
-  printTitle.textContent = `${APP_NAME} v1.0.4`;
+  printTitle.textContent = `${APP_NAME} v1.0.5`;
   printWeekRange.textContent = `${printYear} \u5e74 ${printMonth} \u6708`;
   printWeek.innerHTML = "";
 
@@ -632,6 +632,32 @@ function editHomework(id) {
     return;
   }
 
+  const nextSchool = window.prompt("\u8acb\u4fee\u6539\u6821\u540d\uff08\u79c0\u5c71\u6216\u79c0\u6717\uff09", homework.school);
+
+  if (nextSchool === null) {
+    return;
+  }
+
+  const trimmedSchool = nextSchool.trim();
+
+  if (!SCHOOL_OPTIONS.includes(trimmedSchool)) {
+    window.alert("\u6821\u540d\u53ea\u80fd\u586b\u79c0\u5c71\u6216\u79c0\u6717\u3002");
+    return;
+  }
+
+  const nextGrade = window.prompt("\u8acb\u4fee\u6539\u5e74\u7d1a\uff084\u30015\u30016\uff09", homework.grade);
+
+  if (nextGrade === null) {
+    return;
+  }
+
+  const trimmedGrade = nextGrade.trim();
+
+  if (!GRADE_OPTIONS.includes(trimmedGrade)) {
+    window.alert("\u5e74\u7d1a\u53ea\u80fd\u586b 4\u30015\u30016\u3002");
+    return;
+  }
+
   const trimmedText = nextText.trim();
 
   if (!trimmedText) {
@@ -640,7 +666,12 @@ function editHomework(id) {
   }
 
   homeworks = homeworks.map((item) => (
-    item.id === id ? { ...item, text: trimmedText } : item
+    item.id === id ? {
+      ...item,
+      text: trimmedText,
+      school: trimmedSchool,
+      grade: trimmedGrade
+    } : item
   ));
 
   saveHomeworks();

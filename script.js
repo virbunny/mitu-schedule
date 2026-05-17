@@ -23,6 +23,7 @@ const prevMonthButton = document.getElementById("prevMonthButton");
 const nextMonthButton = document.getElementById("nextMonthButton");
 const printWeekButton = document.getElementById("printWeekButton");
 const exportButton = document.getElementById("exportButton");
+const evaluationExportButton = document.getElementById("evaluationExportButton");
 const importFile = document.getElementById("importFile");
 const printTitle = document.getElementById("printTitle");
 const printWeekRange = document.getElementById("printWeekRange");
@@ -30,9 +31,11 @@ const printWeek = document.getElementById("printWeek");
 const DEFAULT_SCHOOL = "\u79c0\u5c71";
 const DEFAULT_GRADE = "5";
 const DEFAULT_SUBJECT = "\u570b\u8a9e";
+const NO_SUBJECT = "\u7121";
 const SCHOOL_OPTIONS = ["\u79c0\u5c71", "\u79c0\u6717", "\u5171\u540c"];
 const GRADE_OPTIONS = ["5", "6"];
-const SUBJECT_OPTIONS = ["\u570b\u8a9e", "\u6578\u5b78", "\u793e\u6703", "\u81ea\u7136"];
+const EVALUATION_SUBJECT_OPTIONS = ["\u570b\u8a9e", "\u6578\u5b78", "\u793e\u6703", "\u81ea\u7136"];
+const SUBJECT_OPTIONS = [...EVALUATION_SUBJECT_OPTIONS, NO_SUBJECT];
 
 let homeworks = loadHomeworks();
 let selectedDate = getTodayValue();
@@ -42,6 +45,10 @@ let exchangingHomeworkId = "";
 let editingHomeworkId = "";
 let noHomeworkMode = false;
 const workdayNames = ["\u4e00", "\u4e8c", "\u4e09", "\u56db", "\u4e94"];
+
+function isAllowedSubject(subject, text) {
+  return text ? SUBJECT_OPTIONS.includes(subject) : subject === "";
+}
 
 function getTodayValue() {
   return toDateValue(new Date());
@@ -114,12 +121,16 @@ function getBackupFileName() {
   return `${APP_NAME}\u5099\u4efd-${year}-${month}-${day}-${hour}${minute}${second}.json`;
 }
 
+function getEvaluationFileName() {
+  return `\u8a55\u91cf\u5c0f\u7ba1\u5bb6\u532f\u51fa-${getTodayValue()}.json`;
+}
+
 function isValidHomework(homework) {
   return homework
     && typeof homework.id === "string"
     && typeof homework.subject === "string"
-    && SUBJECT_OPTIONS.includes(homework.subject)
     && typeof homework.text === "string"
+    && isAllowedSubject(homework.subject, homework.text)
     && typeof homework.date === "string"
     && /^\d{4}-\d{2}-\d{2}$/.test(homework.date)
     && typeof homework.school === "string"
@@ -136,15 +147,21 @@ function normalizeImportedHomeworks(data) {
     throw new Error("\u532f\u5165\u6a94\u6848\u683c\u5f0f\u4e0d\u6b63\u78ba\u3002");
   }
 
-  return importedHomeworks.map((homework) => ({
-    id: typeof homework.id === "string" ? homework.id : createId(),
-    subject: SUBJECT_OPTIONS.includes(homework.subject) ? homework.subject : DEFAULT_SUBJECT,
-    text: String(homework.text || "").trim(),
-    date: String(homework.date || ""),
-    school: SCHOOL_OPTIONS.includes(homework.school) ? homework.school : DEFAULT_SCHOOL,
-    grade: GRADE_OPTIONS.includes(String(homework.grade || "")) ? String(homework.grade) : DEFAULT_GRADE,
-    done: Boolean(homework.done)
-  })).filter(isValidHomework);
+  return importedHomeworks.map((homework) => {
+    const text = String(homework.text || "").trim();
+
+    return {
+      id: typeof homework.id === "string" ? homework.id : createId(),
+      subject: text
+        ? (SUBJECT_OPTIONS.includes(homework.subject) ? homework.subject : DEFAULT_SUBJECT)
+        : "",
+      text,
+      date: String(homework.date || ""),
+      school: SCHOOL_OPTIONS.includes(homework.school) ? homework.school : DEFAULT_SCHOOL,
+      grade: GRADE_OPTIONS.includes(String(homework.grade || "")) ? String(homework.grade) : DEFAULT_GRADE,
+      done: Boolean(homework.done)
+    };
+  }).filter(isValidHomework);
 }
 
 function exportHomeworks() {
@@ -154,11 +171,29 @@ function exportHomeworks() {
     exportedAt: new Date().toISOString(),
     homeworks: homeworks.map(toExportHomework)
   };
-  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+
+  downloadJson(backup, getBackupFileName());
+}
+
+function exportEvaluationHomeworks() {
+  const evaluationHomeworks = homeworks
+    .filter((homework) => homework.text.trim() && EVALUATION_SUBJECT_OPTIONS.includes(homework.subject))
+    .map(toEvaluationExportHomework);
+
+  if (evaluationHomeworks.length === 0) {
+    window.alert("\u6c92\u6709\u53ef\u532f\u51fa\u7d66\u8a55\u91cf\u5c0f\u7ba1\u5bb6\u7684\u4f5c\u696d\u3002");
+    return;
+  }
+
+  downloadJson(evaluationHomeworks, getEvaluationFileName());
+}
+
+function downloadJson(data, fileName) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   const link = document.createElement("a");
 
   link.href = URL.createObjectURL(blob);
-  link.download = getBackupFileName();
+  link.download = fileName;
   link.click();
   URL.revokeObjectURL(link.href);
 }
@@ -169,7 +204,9 @@ function normalizeStoredHomeworks() {
   homeworks = homeworks.map((homework) => {
     const normalizedHomework = {
       ...homework,
-      subject: SUBJECT_OPTIONS.includes(homework.subject) ? homework.subject : DEFAULT_SUBJECT,
+      subject: homework.text
+        ? (SUBJECT_OPTIONS.includes(homework.subject) ? homework.subject : DEFAULT_SUBJECT)
+        : "",
       school: SCHOOL_OPTIONS.includes(homework.school) ? homework.school : DEFAULT_SCHOOL,
       grade: GRADE_OPTIONS.includes(String(homework.grade || "")) ? String(homework.grade) : DEFAULT_GRADE
     };
@@ -201,6 +238,16 @@ function toExportHomework(homework) {
   };
 }
 
+function toEvaluationExportHomework(homework) {
+  return {
+    date: homework.date,
+    school: homework.school,
+    grade: homework.grade,
+    subject: homework.subject,
+    text: homework.text
+  };
+}
+
 function getHomeworkLabel(homework) {
   const schoolShortName = homework.school === "\u5171\u540c"
     ? "\u5171"
@@ -213,7 +260,9 @@ function getHomeworkDisplayText(homework) {
 }
 
 function formatHomeworkText(homework) {
-  return `${getHomeworkLabel(homework)} ${homework.subject} ${getHomeworkDisplayText(homework)}`;
+  return [getHomeworkLabel(homework), homework.subject, getHomeworkDisplayText(homework)]
+    .filter(Boolean)
+    .join(" ");
 }
 
 function formatCalendarPreviewText(homework) {
@@ -224,6 +273,7 @@ function setNoHomeworkMode(isActive) {
   noHomeworkMode = isActive;
   noHomeworkButton.classList.toggle("is-active", noHomeworkMode);
   noHomeworkButton.setAttribute("aria-pressed", String(noHomeworkMode));
+  subjectInput.disabled = noHomeworkMode;
 
   if (noHomeworkMode) {
     homeworkInput.value = "";
@@ -635,7 +685,11 @@ function renderHomeworks() {
     deleteButton.textContent = "\u522a\u9664";
     deleteButton.addEventListener("click", () => deleteHomework(homework.id));
 
-    content.append(date, meta, subject, text);
+    content.append(date, meta);
+    if (homework.subject) {
+      content.appendChild(subject);
+    }
+    content.appendChild(text);
     actions.append(completeButton, editButton, exchangeButton, deleteButton);
     item.append(content, actions);
     homeworkList.appendChild(item);
@@ -653,7 +707,7 @@ function renderPrintSchedule() {
   const printYear = visibleMonth.getFullYear();
   const printMonth = visibleMonth.getMonth() + 1;
 
-  printTitle.textContent = `${APP_NAME} v1.1.4`;
+  printTitle.textContent = `${APP_NAME} v1.1.6`;
   printWeekRange.textContent = `${printYear} \u5e74 ${printMonth} \u6708`;
   printWeek.innerHTML = "";
 
@@ -767,7 +821,7 @@ function saveEditedHomework(id, nextSubject, nextText, nextSchool, nextGrade) {
   const trimmedSubject = nextSubject.trim();
   const trimmedText = nextText.trim();
 
-  if (!SUBJECT_OPTIONS.includes(trimmedSubject)) {
+  if (trimmedText && !SUBJECT_OPTIONS.includes(trimmedSubject)) {
     window.alert("\u79d1\u76ee\u9078\u9805\u4e0d\u6b63\u78ba\u3002");
     return;
   }
@@ -780,7 +834,7 @@ function saveEditedHomework(id, nextSubject, nextText, nextSchool, nextGrade) {
   homeworks = homeworks.map((item) => (
     item.id === id ? {
       ...item,
-      subject: trimmedSubject,
+      subject: trimmedText ? trimmedSubject : "",
       text: trimmedText,
       school: nextSchool,
       grade: nextGrade
@@ -856,7 +910,7 @@ form.addEventListener("submit", (event) => {
     return;
   }
 
-  addHomework(subject, text, date, school, grade);
+  addHomework(noHomeworkMode ? "" : subject, text, date, school, grade);
   form.reset();
   setNoHomeworkMode(false);
   dateInput.value = selectedDate;
@@ -906,6 +960,7 @@ printWeekButton.addEventListener("click", () => {
 });
 
 exportButton.addEventListener("click", exportHomeworks);
+evaluationExportButton.addEventListener("click", exportEvaluationHomeworks);
 
 importFile.addEventListener("change", () => {
   const file = importFile.files[0];

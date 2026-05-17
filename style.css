@@ -124,7 +124,7 @@ h2 {
 
 .tool-actions {
   display: grid;
-  grid-template-columns: auto auto auto;
+  grid-template-columns: auto auto auto auto;
   justify-content: flex-end;
   gap: 10px;
 }

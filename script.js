@@ -211,6 +211,10 @@ function formatHomeworkText(homework) {
   return `${getHomeworkLabel(homework)} ${homework.subject} ${homework.text}`;
 }
 
+function formatCalendarPreviewText(homework) {
+  return `${getHomeworkLabel(homework)} ${homework.text}`;
+}
+
 function createOption(value, label, selectedValue) {
   const option = document.createElement("option");
   option.value = value;
@@ -435,7 +439,7 @@ function renderCalendarMonth(monthDate) {
       previewHomeworks.forEach((homework) => {
         const previewItem = document.createElement("span");
         previewItem.className = homework.done ? "day-preview done-preview" : "day-preview";
-        previewItem.textContent = formatHomeworkText(homework);
+        previewItem.textContent = formatCalendarPreviewText(homework);
         previewList.appendChild(previewItem);
       });
 
@@ -631,7 +635,7 @@ function renderPrintSchedule() {
   const printYear = visibleMonth.getFullYear();
   const printMonth = visibleMonth.getMonth() + 1;
 
-  printTitle.textContent = `${APP_NAME} v1.1.2`;
+  printTitle.textContent = `${APP_NAME} v1.1.3`;
   printWeekRange.textContent = `${printYear} \u5e74 ${printMonth} \u6708`;
   printWeek.innerHTML = "";
 

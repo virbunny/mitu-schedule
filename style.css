@@ -355,6 +355,7 @@ label {
 }
 
 textarea,
+input[type="text"],
 input[type="date"],
 select {
   width: 100%;
@@ -375,6 +376,7 @@ textarea {
 
 textarea:focus,
 input[type="date"]:focus,
+input[type="text"]:focus,
 select:focus {
   border-color: var(--brand);
   box-shadow: 0 0 0 4px rgba(36, 107, 97, 0.14);
@@ -546,6 +548,17 @@ select:focus {
   font-size: 0.96rem;
   font-weight: 900;
   text-align: center;
+}
+
+.homework-subject {
+  display: inline-block;
+  margin: 0 0 6px 8px;
+  padding: 4px 9px;
+  border-radius: 8px;
+  color: var(--brand-dark);
+  background: #d7eee7;
+  font-size: 0.96rem;
+  font-weight: 900;
 }
 
 .homework-text {

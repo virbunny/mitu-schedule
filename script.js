@@ -3,6 +3,7 @@ const MONTH_VIEW_STORAGE_KEY = "mituMonthViewCount";
 const APP_NAME = "\u7c73\u5154\u6392\u8ab2\u8868";
 
 const form = document.getElementById("homeworkForm");
+const subjectInput = document.getElementById("subjectInput");
 const homeworkInput = document.getElementById("homeworkInput");
 const schoolInput = document.getElementById("schoolInput");
 const gradeInput = document.getElementById("gradeInput");
@@ -26,6 +27,7 @@ const printWeekRange = document.getElementById("printWeekRange");
 const printWeek = document.getElementById("printWeek");
 const DEFAULT_SCHOOL = "\u79c0\u5c71";
 const DEFAULT_GRADE = "5";
+const DEFAULT_SUBJECT = "\u672a\u5206\u985e";
 const SCHOOL_OPTIONS = ["\u79c0\u5c71", "\u79c0\u6717", "\u5171\u540c"];
 const GRADE_OPTIONS = ["5", "6"];
 
@@ -104,6 +106,8 @@ function getBackupFileName() {
 function isValidHomework(homework) {
   return homework
     && typeof homework.id === "string"
+    && typeof homework.subject === "string"
+    && homework.subject.length > 0
     && typeof homework.text === "string"
     && homework.text.length > 0
     && typeof homework.date === "string"
@@ -124,6 +128,7 @@ function normalizeImportedHomeworks(data) {
 
   return importedHomeworks.map((homework) => ({
     id: typeof homework.id === "string" ? homework.id : createId(),
+    subject: String(homework.subject || DEFAULT_SUBJECT).trim(),
     text: String(homework.text || "").trim(),
     date: String(homework.date || ""),
     school: SCHOOL_OPTIONS.includes(homework.school) ? homework.school : DEFAULT_SCHOOL,
@@ -154,11 +159,16 @@ function normalizeStoredHomeworks() {
   homeworks = homeworks.map((homework) => {
     const normalizedHomework = {
       ...homework,
+      subject: String(homework.subject || DEFAULT_SUBJECT).trim() || DEFAULT_SUBJECT,
       school: SCHOOL_OPTIONS.includes(homework.school) ? homework.school : DEFAULT_SCHOOL,
       grade: GRADE_OPTIONS.includes(String(homework.grade || "")) ? String(homework.grade) : DEFAULT_GRADE
     };
 
-    if (normalizedHomework.school !== homework.school || normalizedHomework.grade !== homework.grade) {
+    if (
+      normalizedHomework.subject !== homework.subject
+      || normalizedHomework.school !== homework.school
+      || normalizedHomework.grade !== homework.grade
+    ) {
       hasChanged = true;
     }
 
@@ -176,6 +186,7 @@ function toExportHomework(homework) {
     date: homework.date,
     school: homework.school,
     grade: homework.grade,
+    subject: homework.subject,
     text: homework.text
   };
 }
@@ -188,7 +199,7 @@ function getHomeworkLabel(homework) {
 }
 
 function formatHomeworkText(homework) {
-  return `${getHomeworkLabel(homework)} ${homework.text}`;
+  return `${getHomeworkLabel(homework)} ${homework.subject} ${homework.text}`;
 }
 
 function createOption(value, label, selectedValue) {
@@ -486,6 +497,10 @@ function renderHomeworks() {
     meta.className = "homework-meta";
     meta.textContent = getHomeworkLabel(homework);
 
+    const subject = document.createElement("span");
+    subject.className = "homework-subject";
+    subject.textContent = homework.subject;
+
     const text = document.createElement("p");
     text.className = "homework-text";
     text.textContent = homework.text;
@@ -496,6 +511,12 @@ function renderHomeworks() {
     if (homework.id === editingHomeworkId) {
       const editForm = document.createElement("form");
       editForm.className = "edit-homework-form";
+
+      const editSubject = document.createElement("input");
+      editSubject.className = "edit-homework-subject";
+      editSubject.type = "text";
+      editSubject.value = homework.subject;
+      editSubject.required = true;
 
       const editText = document.createElement("textarea");
       editText.className = "edit-homework-text";
@@ -545,10 +566,10 @@ function renderHomeworks() {
       cancelButton.addEventListener("click", () => cancelEditHomework());
 
       editActions.append(saveButton, cancelButton);
-      editForm.append(editText, editRow, editActions);
+      editForm.append(editSubject, editText, editRow, editActions);
       editForm.addEventListener("submit", (event) => {
         event.preventDefault();
-        saveEditedHomework(homework.id, editText.value, editSchool.value, editGrade.value);
+        saveEditedHomework(homework.id, editSubject.value, editText.value, editSchool.value, editGrade.value);
       });
 
       content.append(date, meta, editForm);
@@ -582,7 +603,7 @@ function renderHomeworks() {
     deleteButton.textContent = "\u522a\u9664";
     deleteButton.addEventListener("click", () => deleteHomework(homework.id));
 
-    content.append(date, meta, text);
+    content.append(date, meta, subject, text);
     actions.append(completeButton, editButton, exchangeButton, deleteButton);
     item.append(content, actions);
     homeworkList.appendChild(item);
@@ -600,7 +621,7 @@ function renderPrintSchedule() {
   const printYear = visibleMonth.getFullYear();
   const printMonth = visibleMonth.getMonth() + 1;
 
-  printTitle.textContent = `${APP_NAME} v1.0.9`;
+  printTitle.textContent = `${APP_NAME} v1.1.0`;
   printWeekRange.textContent = `${printYear} \u5e74 ${printMonth} \u6708`;
   printWeek.innerHTML = "";
 
@@ -658,9 +679,10 @@ function renderPrintSchedule() {
   });
 }
 
-function addHomework(text, date, school, grade) {
+function addHomework(subject, text, date, school, grade) {
   homeworks.push({
     id: createId(),
+    subject,
     text,
     date,
     school,
@@ -709,8 +731,14 @@ function cancelEditHomework() {
   renderAll();
 }
 
-function saveEditedHomework(id, nextText, nextSchool, nextGrade) {
+function saveEditedHomework(id, nextSubject, nextText, nextSchool, nextGrade) {
+  const trimmedSubject = nextSubject.trim();
   const trimmedText = nextText.trim();
+
+  if (!trimmedSubject) {
+    window.alert("\u79d1\u76ee\u4e0d\u80fd\u662f\u7a7a\u767d\u3002");
+    return;
+  }
 
   if (!trimmedText) {
     window.alert("\u4f5c\u696d\u5167\u5bb9\u4e0d\u80fd\u662f\u7a7a\u767d\u3002");
@@ -725,6 +753,7 @@ function saveEditedHomework(id, nextText, nextSchool, nextGrade) {
   homeworks = homeworks.map((item) => (
     item.id === id ? {
       ...item,
+      subject: trimmedSubject,
       text: trimmedText,
       school: nextSchool,
       grade: nextGrade
@@ -785,21 +814,22 @@ function deleteHomework(id) {
 form.addEventListener("submit", (event) => {
   event.preventDefault();
 
+  const subject = subjectInput.value.trim();
   const text = homeworkInput.value.trim();
   const date = dateInput.value;
   const school = schoolInput.value;
   const grade = gradeInput.value;
 
-  if (!text || !date || !school || !grade) {
+  if (!subject || !text || !date || !school || !grade) {
     return;
   }
 
-  addHomework(text, date, school, grade);
+  addHomework(subject, text, date, school, grade);
   form.reset();
   dateInput.value = selectedDate;
   schoolInput.value = school;
   gradeInput.value = grade;
-  homeworkInput.focus();
+  subjectInput.focus();
 });
 
 dateInput.addEventListener("change", () => {

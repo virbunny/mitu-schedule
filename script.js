@@ -27,9 +27,10 @@ const printWeekRange = document.getElementById("printWeekRange");
 const printWeek = document.getElementById("printWeek");
 const DEFAULT_SCHOOL = "\u79c0\u5c71";
 const DEFAULT_GRADE = "5";
-const DEFAULT_SUBJECT = "\u672a\u5206\u985e";
+const DEFAULT_SUBJECT = "\u570b\u8a9e";
 const SCHOOL_OPTIONS = ["\u79c0\u5c71", "\u79c0\u6717", "\u5171\u540c"];
 const GRADE_OPTIONS = ["5", "6"];
+const SUBJECT_OPTIONS = ["\u570b\u8a9e", "\u6578\u5b78", "\u793e\u6703", "\u81ea\u7136"];
 
 let homeworks = loadHomeworks();
 let selectedDate = getTodayValue();
@@ -107,7 +108,7 @@ function isValidHomework(homework) {
   return homework
     && typeof homework.id === "string"
     && typeof homework.subject === "string"
-    && homework.subject.length > 0
+    && SUBJECT_OPTIONS.includes(homework.subject)
     && typeof homework.text === "string"
     && homework.text.length > 0
     && typeof homework.date === "string"
@@ -128,7 +129,7 @@ function normalizeImportedHomeworks(data) {
 
   return importedHomeworks.map((homework) => ({
     id: typeof homework.id === "string" ? homework.id : createId(),
-    subject: String(homework.subject || DEFAULT_SUBJECT).trim(),
+    subject: SUBJECT_OPTIONS.includes(homework.subject) ? homework.subject : DEFAULT_SUBJECT,
     text: String(homework.text || "").trim(),
     date: String(homework.date || ""),
     school: SCHOOL_OPTIONS.includes(homework.school) ? homework.school : DEFAULT_SCHOOL,
@@ -159,7 +160,7 @@ function normalizeStoredHomeworks() {
   homeworks = homeworks.map((homework) => {
     const normalizedHomework = {
       ...homework,
-      subject: String(homework.subject || DEFAULT_SUBJECT).trim() || DEFAULT_SUBJECT,
+      subject: SUBJECT_OPTIONS.includes(homework.subject) ? homework.subject : DEFAULT_SUBJECT,
       school: SCHOOL_OPTIONS.includes(homework.school) ? homework.school : DEFAULT_SCHOOL,
       grade: GRADE_OPTIONS.includes(String(homework.grade || "")) ? String(homework.grade) : DEFAULT_GRADE
     };
@@ -512,11 +513,12 @@ function renderHomeworks() {
       const editForm = document.createElement("form");
       editForm.className = "edit-homework-form";
 
-      const editSubject = document.createElement("input");
+      const editSubject = document.createElement("select");
       editSubject.className = "edit-homework-subject";
-      editSubject.type = "text";
-      editSubject.value = homework.subject;
       editSubject.required = true;
+      SUBJECT_OPTIONS.forEach((subjectOption) => {
+        editSubject.appendChild(createOption(subjectOption, subjectOption, homework.subject));
+      });
 
       const editText = document.createElement("textarea");
       editText.className = "edit-homework-text";
@@ -621,7 +623,7 @@ function renderPrintSchedule() {
   const printYear = visibleMonth.getFullYear();
   const printMonth = visibleMonth.getMonth() + 1;
 
-  printTitle.textContent = `${APP_NAME} v1.1.0`;
+  printTitle.textContent = `${APP_NAME} v1.1.1`;
   printWeekRange.textContent = `${printYear} \u5e74 ${printMonth} \u6708`;
   printWeek.innerHTML = "";
 
@@ -735,8 +737,8 @@ function saveEditedHomework(id, nextSubject, nextText, nextSchool, nextGrade) {
   const trimmedSubject = nextSubject.trim();
   const trimmedText = nextText.trim();
 
-  if (!trimmedSubject) {
-    window.alert("\u79d1\u76ee\u4e0d\u80fd\u662f\u7a7a\u767d\u3002");
+  if (!SUBJECT_OPTIONS.includes(trimmedSubject)) {
+    window.alert("\u79d1\u76ee\u9078\u9805\u4e0d\u6b63\u78ba\u3002");
     return;
   }
 

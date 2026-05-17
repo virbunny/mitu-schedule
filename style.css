@@ -30,6 +30,7 @@ body {
 
 button,
 input,
+select,
 textarea {
   font: inherit;
 }
@@ -380,6 +381,29 @@ input[type="text"]:focus,
 select:focus {
   border-color: var(--brand);
   box-shadow: 0 0 0 4px rgba(36, 107, 97, 0.14);
+}
+
+.date-stepper {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 54px;
+  gap: 8px;
+}
+
+.date-step-button {
+  min-height: 56px;
+  border: 0;
+  border-radius: 8px;
+  color: #fff;
+  background: var(--brand);
+  cursor: pointer;
+  font-size: 2rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.date-step-button:hover,
+.date-step-button:focus-visible {
+  background: var(--brand-dark);
 }
 
 .form-row {

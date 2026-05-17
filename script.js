@@ -8,6 +8,7 @@ const homeworkInput = document.getElementById("homeworkInput");
 const schoolInput = document.getElementById("schoolInput");
 const gradeInput = document.getElementById("gradeInput");
 const dateInput = document.getElementById("dateInput");
+const nextDateButton = document.getElementById("nextDateButton");
 const homeworkList = document.getElementById("homeworkList");
 const emptyState = document.getElementById("emptyState");
 const homeworkCount = document.getElementById("homeworkCount");
@@ -54,6 +55,13 @@ function toDateValue(date) {
 function formatDate(dateValue) {
   const [year, month, day] = dateValue.split("-");
   return `${year}/${month}/${day}`;
+}
+
+function addDaysToDateValue(dateValue, amount) {
+  const [year, month, day] = dateValue.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+  date.setDate(date.getDate() + amount);
+  return toDateValue(date);
 }
 
 function formatPrintDate(dateValue) {
@@ -623,7 +631,7 @@ function renderPrintSchedule() {
   const printYear = visibleMonth.getFullYear();
   const printMonth = visibleMonth.getMonth() + 1;
 
-  printTitle.textContent = `${APP_NAME} v1.1.1`;
+  printTitle.textContent = `${APP_NAME} v1.1.2`;
   printWeekRange.textContent = `${printYear} \u5e74 ${printMonth} \u6708`;
   printWeek.innerHTML = "";
 
@@ -838,6 +846,11 @@ dateInput.addEventListener("change", () => {
   if (dateInput.value) {
     setSelectedDate(dateInput.value);
   }
+});
+
+nextDateButton.addEventListener("click", () => {
+  const baseDate = dateInput.value || selectedDate || getTodayValue();
+  setSelectedDate(addDaysToDateValue(baseDate, 1), true);
 });
 
 prevMonthButton.addEventListener("click", () => {

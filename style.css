@@ -406,6 +406,24 @@ select:focus {
   background: var(--brand-dark);
 }
 
+.no-homework-button {
+  min-height: 48px;
+  border: 2px solid #bfe1d7;
+  border-radius: 8px;
+  color: var(--brand-dark);
+  background: #edf8f5;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.no-homework-button.is-active,
+.no-homework-button:hover,
+.no-homework-button:focus-visible {
+  color: #fff;
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
 .form-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -5,6 +5,7 @@ const APP_NAME = "\u7c73\u5154\u6392\u8ab2\u8868";
 const form = document.getElementById("homeworkForm");
 const subjectInput = document.getElementById("subjectInput");
 const homeworkInput = document.getElementById("homeworkInput");
+const noHomeworkButton = document.getElementById("noHomeworkButton");
 const schoolInput = document.getElementById("schoolInput");
 const gradeInput = document.getElementById("gradeInput");
 const dateInput = document.getElementById("dateInput");
@@ -39,6 +40,7 @@ let visibleMonth = new Date(`${selectedDate}T00:00:00`);
 let monthViewCount = loadMonthViewCount();
 let exchangingHomeworkId = "";
 let editingHomeworkId = "";
+let noHomeworkMode = false;
 const workdayNames = ["\u4e00", "\u4e8c", "\u4e09", "\u56db", "\u4e94"];
 
 function getTodayValue() {
@@ -118,7 +120,6 @@ function isValidHomework(homework) {
     && typeof homework.subject === "string"
     && SUBJECT_OPTIONS.includes(homework.subject)
     && typeof homework.text === "string"
-    && homework.text.length > 0
     && typeof homework.date === "string"
     && /^\d{4}-\d{2}-\d{2}$/.test(homework.date)
     && typeof homework.school === "string"
@@ -207,12 +208,29 @@ function getHomeworkLabel(homework) {
   return `${schoolShortName}${homework.grade}`;
 }
 
+function getHomeworkDisplayText(homework) {
+  return homework.text || "\u7121\u4f5c\u696d";
+}
+
 function formatHomeworkText(homework) {
-  return `${getHomeworkLabel(homework)} ${homework.subject} ${homework.text}`;
+  return `${getHomeworkLabel(homework)} ${homework.subject} ${getHomeworkDisplayText(homework)}`;
 }
 
 function formatCalendarPreviewText(homework) {
-  return `${getHomeworkLabel(homework)} ${homework.text}`;
+  return `${getHomeworkLabel(homework)} ${getHomeworkDisplayText(homework)}`;
+}
+
+function setNoHomeworkMode(isActive) {
+  noHomeworkMode = isActive;
+  noHomeworkButton.classList.toggle("is-active", noHomeworkMode);
+  noHomeworkButton.setAttribute("aria-pressed", String(noHomeworkMode));
+
+  if (noHomeworkMode) {
+    homeworkInput.value = "";
+    homeworkInput.placeholder = "\u4eca\u65e5\u7121\u4f5c\u696d";
+  } else {
+    homeworkInput.placeholder = "\u4f8b\u5982\uff1a\u6578\u5b78\u7b2c 8 \u56de\u3001\u570b\u8a9e\u7fd2\u4f5c 32 \u9801";
+  }
 }
 
 function createOption(value, label, selectedValue) {
@@ -516,7 +534,7 @@ function renderHomeworks() {
 
     const text = document.createElement("p");
     text.className = "homework-text";
-    text.textContent = homework.text;
+    text.textContent = getHomeworkDisplayText(homework);
 
     const actions = document.createElement("div");
     actions.className = "actions";
@@ -536,7 +554,7 @@ function renderHomeworks() {
       editText.className = "edit-homework-text";
       editText.rows = 3;
       editText.value = homework.text;
-      editText.required = true;
+      editText.placeholder = "\u7559\u7a7a\u8868\u793a\u7121\u4f5c\u696d";
 
       const editRow = document.createElement("div");
       editRow.className = "form-row";
@@ -635,7 +653,7 @@ function renderPrintSchedule() {
   const printYear = visibleMonth.getFullYear();
   const printMonth = visibleMonth.getMonth() + 1;
 
-  printTitle.textContent = `${APP_NAME} v1.1.3`;
+  printTitle.textContent = `${APP_NAME} v1.1.4`;
   printWeekRange.textContent = `${printYear} \u5e74 ${printMonth} \u6708`;
   printWeek.innerHTML = "";
 
@@ -754,11 +772,6 @@ function saveEditedHomework(id, nextSubject, nextText, nextSchool, nextGrade) {
     return;
   }
 
-  if (!trimmedText) {
-    window.alert("\u4f5c\u696d\u5167\u5bb9\u4e0d\u80fd\u662f\u7a7a\u767d\u3002");
-    return;
-  }
-
   if (!SCHOOL_OPTIONS.includes(nextSchool) || !GRADE_OPTIONS.includes(nextGrade)) {
     window.alert("\u6821\u540d\u6216\u5e74\u7d1a\u9078\u9805\u4e0d\u6b63\u78ba\u3002");
     return;
@@ -834,16 +847,32 @@ form.addEventListener("submit", (event) => {
   const school = schoolInput.value;
   const grade = gradeInput.value;
 
-  if (!subject || !text || !date || !school || !grade) {
+  if (!subject || !date || !school || !grade) {
+    return;
+  }
+
+  if (!text && !noHomeworkMode) {
+    window.alert("\u8acb\u8f38\u5165\u4f5c\u696d\u5167\u5bb9\uff0c\u6216\u6309\u300c\u4eca\u65e5\u7121\u4f5c\u696d\u300d\u3002");
     return;
   }
 
   addHomework(subject, text, date, school, grade);
   form.reset();
+  setNoHomeworkMode(false);
   dateInput.value = selectedDate;
   schoolInput.value = school;
   gradeInput.value = grade;
   subjectInput.focus();
+});
+
+noHomeworkButton.addEventListener("click", () => {
+  setNoHomeworkMode(true);
+});
+
+homeworkInput.addEventListener("input", () => {
+  if (homeworkInput.value.trim()) {
+    setNoHomeworkMode(false);
+  }
 });
 
 dateInput.addEventListener("change", () => {
